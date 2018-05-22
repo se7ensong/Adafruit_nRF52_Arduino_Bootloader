@@ -50,7 +50,7 @@
  *------------------------------------------------------------------*/
 #define BUTTONS_NUMBER 2
 #define BUTTON_1       20
-#define BUTTON_2       22
+#define BUTTON_2       23
 #define BUTTON_PULL    NRF_GPIO_PIN_PULLUP
 
 /*------------------------------------------------------------------*/
