@@ -43,7 +43,7 @@
 #define LEDS_NUMBER    2
 #define LED_1          8
 #define LED_2          6
-#define LED_STATE_ON   1
+#define LED_STATE_ON   0
 
 /*------------------------------------------------------------------*/
 /* BUTTON
