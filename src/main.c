@@ -80,7 +80,6 @@
 #define BOOTLOADER_DFU_OTA_MAGIC            BOOTLOADER_DFU_START             // 0xB1
 #define BOOTLOADER_DFU_OTA_FULLRESET_MAGIC  0xA8
 #define BOOTLOADER_DFU_SERIAL_MAGIC         0x4e
-#define IS_SRVC_CHANGED_CHARACT_PRESENT	    1
 
 #define BOOTLOADER_BUTTON                   BUTTON_1                         // Button used to enter SW update mode.
 #define FRESET_BUTTON                       BUTTON_2                         // Button used in addition to DFU button, to force OTA DFU
