@@ -421,7 +421,7 @@ int main(void)
      * Even DFU is not active, we still force an 1000 ms dfu serial mode when startup
      * to support auto programming from Arduino IDE
      */
-    (void) bootloader_dfu_start(false, BOOTLOADER_STARTUP_DFU_INTERVAL);
+//    (void) bootloader_dfu_start(false, BOOTLOADER_STARTUP_DFU_INTERVAL);
   }
 
   // Adafruit Factory reset
