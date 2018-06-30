@@ -253,8 +253,9 @@ static uint32_t ble_stack_init(bool init_softdevice)
       .source       = NRF_CLOCK_LF_SRC_RC,
       .rc_ctiv      = 16,
       .rc_temp_ctiv = 2,
-      .accuracy     = NRF_CLOCK_LF_ACCURACY_20_PPM
+      .accuracy     = NRF_CLOCK_LF_ACCURACY_250_PPM
   };
+    
 
   if (init_softdevice)
   {
