@@ -41,23 +41,23 @@
 /* LED
  *------------------------------------------------------------------*/
 #define LEDS_NUMBER    2
-#define LED_1          30
-#define LED_2          28
-#define LED_STATE_ON   0
+#define LED_1          6
+#define LED_2          8
+#define LED_STATE_ON   1
 
 /*------------------------------------------------------------------*/
 /* BUTTON
  *------------------------------------------------------------------*/
 #define BUTTONS_NUMBER 2
-#define BUTTON_1       21
-#define BUTTON_2       22
+#define BUTTON_1       20
+#define BUTTON_2       26
 #define BUTTON_PULL    NRF_GPIO_PIN_PULLUP
 
 /*------------------------------------------------------------------*/
 /* UART
  *------------------------------------------------------------------*/
-#define RX_PIN_NUMBER  8
-#define TX_PIN_NUMBER  6
+#define RX_PIN_NUMBER  19
+#define TX_PIN_NUMBER  21
 #define CTS_PIN_NUMBER 25
 #define RTS_PIN_NUMBER 22
 #define HWFC           false
