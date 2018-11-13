@@ -49,9 +49,9 @@
 /* BUTTON
  *------------------------------------------------------------------*/
 #define BUTTONS_NUMBER 2
-#define BUTTON_1       29
+#define BUTTON_1       27
 #define BUTTON_2       26
-#define BUTTON_PULL    NRF_GPIO_PIN_PULLDOWN
+#define BUTTON_PULL    NRF_GPIO_PIN_PULLUP
 
 /*------------------------------------------------------------------*/
 /* UART	
