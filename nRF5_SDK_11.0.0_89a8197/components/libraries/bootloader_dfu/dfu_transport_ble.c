@@ -37,6 +37,11 @@
 #include "nrf_delay.h"
 #include "sdk_common.h"
 
+
+#define BLEGAP_EVENT_LENGTH             6
+#define BLEGATT_ATT_MTU_MAX             247
+enum { BLE_CONN_CFG_HIGH_BANDWIDTH = 1 };
+
 #define DFU_REV_MAJOR                        0x00                                                    /** DFU Major revision number to be exposed. */
 #define DFU_REV_MINOR                        0x08                                                    /** DFU Minor revision number to be exposed. */
 #define DFU_REVISION                         ((DFU_REV_MAJOR << 8) | DFU_REV_MINOR)                  /** DFU Revision number to be exposed. Combined of major and minor versions. */
@@ -49,10 +54,11 @@
 #define DIS_MANUFACTURER                     "Adafruit Industries"
 // DIS_MODEL is defined in boards.h
 
-#define DIS_FIRMWARE                         "S132 2.0.1, 0.5.0" // Update when upgrade bootloader
+// TODO Update when upgrade bootloader
+#define DIS_FIRMWARE                         "S132 5.1.0, 5.1.0"
 
 
-#define MIN_CONN_INTERVAL                    (uint16_t)(MSEC_TO_UNITS(15, UNIT_1_25_MS))             /**< Minimum acceptable connection interval (11.25 milliseconds). */
+#define MIN_CONN_INTERVAL                    (uint16_t)(MSEC_TO_UNITS(10, UNIT_1_25_MS))             /**< Minimum acceptable connection interval (11.25 milliseconds). */
 #define MAX_CONN_INTERVAL                    (uint16_t)(MSEC_TO_UNITS(30, UNIT_1_25_MS))             /**< Maximum acceptable connection interval (15 milliseconds). */
 #define SLAVE_LATENCY                        0                                                       /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                     (4 * 100)                                               /**< Connection supervisory timeout (4 seconds). */
@@ -117,6 +123,10 @@ static bool                 m_ble_peer_data_valid    = false;                   
 static uint32_t             m_direct_adv_cnt         = APP_DIRECTED_ADV_TIMEOUT;                     /**< Counter of direct advertisements. */
 static uint8_t            * mp_final_packet;                                                         /**< Pointer to final data packet received. When callback for succesful packet handling is received from dfu bank handling a transfer complete response can be sent to peer. */
 
+
+static ble_gap_addr_t      const * m_whitelist[1];                                                  /**< List of peers in whitelist (only one) */
+static ble_gap_id_key_t    const * m_gap_ids[1];
+
 // Adafruit
 extern void blinky_fast_set(bool isFast);
 extern void blinky_ota_connected(void);
@@ -157,7 +167,7 @@ static uint32_t service_change_indicate()
         err_code = sd_ble_gatts_service_changed(m_conn_handle, DFU_SERVICE_HANDLE, BLE_HANDLE_MAX);
         if ((err_code == BLE_ERROR_INVALID_CONN_HANDLE) ||
             (err_code == NRF_ERROR_INVALID_STATE) ||
-            (err_code == BLE_ERROR_NO_TX_PACKETS))
+            (err_code == NRF_ERROR_BUSY))
         {
             // Those errors can be expected when sending trying to send Service Changed Indication
             // if the CCCD is not set to indicate. Thus set the returning error code to success.
@@ -710,24 +720,25 @@ static void advertising_start(void)
             }
             else
             {
-                ble_gap_irk_t  * p_irk[1];
-                ble_gap_addr_t * p_addr[1];
+                m_whitelist[0] = &m_ble_peer_data.addr;
+                err_code = sd_ble_gap_whitelist_set(m_whitelist, 1);
+                APP_ERROR_CHECK(err_code);
 
-                p_irk[0]  = &m_ble_peer_data.irk;
-                p_addr[0] = &m_ble_peer_data.addr;
+                ble_gap_id_key_t id_key = {
+                    .id_info      = m_ble_peer_data.irk,
+                    .id_addr_info = m_ble_peer_data.addr
+                };
 
-                ble_gap_whitelist_t whitelist;
-                whitelist.addr_count = 1;
-                whitelist.pp_addrs   = p_addr;
-                whitelist.irk_count  = 1;
-                whitelist.pp_irks    = p_irk;
+                m_gap_ids[0] = &id_key;
+                err_code = sd_ble_gap_device_identities_set(m_gap_ids, NULL, 1);
+                APP_ERROR_CHECK(err_code);
 
                 advertising_init(BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED);
                 m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_IND;
                 m_adv_params.fp          = BLE_GAP_ADV_FP_FILTER_CONNREQ;
-                m_adv_params.p_whitelist = &whitelist;
                 m_adv_params.interval    = APP_ADV_INTERVAL;
                 m_adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
+
             }
         }
         else
@@ -740,7 +751,7 @@ static void advertising_start(void)
             m_adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
         }
 
-        err_code = sd_ble_gap_adv_start(&m_adv_params);
+        err_code = sd_ble_gap_adv_start(&m_adv_params, BLE_CONN_CFG_HIGH_BANDWIDTH);
         APP_ERROR_CHECK(err_code);
 
 //        led_on(ADVERTISING_LED_PIN_NO);
@@ -928,6 +939,19 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             // No implementation needed.
             break;
 
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
+          // Let Softdevice decide the data length
+          // ble_gap_data_length_params_t* param = &evt->evt.gap_evt.params.data_length_update_request.peer_params
+          APP_ERROR_CHECK( sd_ble_gap_data_length_update(m_conn_handle, NULL, NULL) );
+        break;
+
+        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
+        {
+          uint16_t att_mtu = MIN(p_ble_evt->evt.gatts_evt.params.exchange_mtu_request.client_rx_mtu, BLEGATT_ATT_MTU_MAX);
+          APP_ERROR_CHECK( sd_ble_gatts_exchange_mtu_reply(m_conn_handle, att_mtu) );
+        }
+        break;
+
         default:
             // No implementation needed.
             break;
@@ -1081,20 +1105,25 @@ uint32_t dfu_transport_ble_update_start(void)
     {
         ble_gap_addr_t addr;
 
-        err_code = sd_ble_gap_address_get(&addr);
+        err_code = sd_ble_gap_addr_get(&addr);
         APP_ERROR_CHECK(err_code);
 
         // Increase the BLE address by one when advertising openly.
         addr.addr[0] += 1;
 
-        err_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr);
+        err_code = sd_ble_gap_addr_set(&addr);
         APP_ERROR_CHECK(err_code);
+
+//        ble_gap_privacy_params_t privacy = { .privacy_mode = BLE_GAP_PRIVACY_MODE_OFF };
+//        sd_ble_gap_privacy_set(&privacy);
     }
 
     gap_params_init();
     services_init();
     conn_params_init();
     sec_params_init();
+
+    sd_ble_gap_tx_power_set(4); // maximum power
     advertising_start();
 
     return NRF_SUCCESS;
