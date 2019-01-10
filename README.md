@@ -17,3 +17,8 @@ Note: The bootloader .hex file gets merged with the SoftDevice .hex file since t
 - `metro52_bootloader_v050_s132_v201.hex` - Intel hex file containing the Metro nRF52 bootloader ans S132 (v2.0.1) SD, for use when flashing with Adalink or a JLink
 
 > `.zip` files are used for OTA updates and are provided for testing purposes, but shouldn't be made available to customers since OTA bootloader and SD updates are a high risk operation.
+
+# To make on windows machine
+- Run command line in src/dualbank or src/singlebank
+- Run "..\..\Build Tools\make" feather52 for generating files (hex, bin and zip) for the bootloader
+- Run "..\..\Build Tools\make" genpkg OUTPUT_FILENAME=feather52_bootloader for generating DFU ready zip file including correpsonding softdevice

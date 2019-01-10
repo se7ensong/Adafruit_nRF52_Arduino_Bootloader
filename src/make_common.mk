@@ -279,14 +279,14 @@ default: all
 
 #building all targets
 all:
-	@$(MAKE) -s -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e clean
+	@$(MAKE) -s -f $(MAKEFILE_NAME) -e clean
 	@echo Making Feather52 board
 	@echo ----------------------
-	@$(MAKE) -s -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e feather52
-	@$(MAKE) -s -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e clean
+	@$(MAKE) -s -f $(MAKEFILE_NAME) -e feather52
+	@$(MAKE) -s -f $(MAKEFILE_NAME) -e clean
 	@echo Making Metro52 board
 	@echo --------------------
-	@$(MAKE) -s -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e metro52
+	@$(MAKE) -s -f $(MAKEFILE_NAME) -e metro52
 
 #target for printing all targets
 help:
@@ -320,7 +320,7 @@ feather52: CFLAGS += -DBOARD_FEATHER52
 feather52: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -lm -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -e finalize
 
 # Target for Metro nrf52 board
 metro52: OUTPUT_FILENAME := metro52_bootloader
@@ -329,7 +329,7 @@ metro52: CFLAGS += -DBOARD_METRO52
 metro52: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -lm -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -e finalize
 
 ## Create build directories
 $(BUILD_DIRECTORIES):
