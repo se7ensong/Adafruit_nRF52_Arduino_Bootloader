@@ -403,6 +403,7 @@ int main(void)
 
   // DFU + FRESET are pressed --> OTA
   _ota_update = _ota_update  || ( button_pressed(BOOTLOADER_BUTTON) && button_pressed(FRESET_BUTTON) ) ;
+  _ota_update = _ota_update  || !bootloader_app_is_valid(DFU_BANK_0_REGION_START);
 
 #ifdef BOARD_METRO52
   led_pin_init(LED_BLUE);
