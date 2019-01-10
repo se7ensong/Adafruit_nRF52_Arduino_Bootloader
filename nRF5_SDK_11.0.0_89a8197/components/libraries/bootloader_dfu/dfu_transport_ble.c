@@ -944,7 +944,23 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
           // ble_gap_data_length_params_t* param = &evt->evt.gap_evt.params.data_length_update_request.peer_params
           APP_ERROR_CHECK( sd_ble_gap_data_length_update(m_conn_handle, NULL, NULL) );
         break;
+            
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+        {
+//          ble_gap_phys_t* req_phy = &evt->evt.gap_evt.params.phy_update_request.peer_preferred_phys;
 
+          // Tell SoftDevice to choose PHY automatically
+          ble_gap_phys_t phy = { BLE_GAP_PHY_AUTO, BLE_GAP_PHY_AUTO };
+          (void) sd_ble_gap_phy_update(m_conn_handle, &phy);
+        }
+        break;
+
+        case BLE_GAP_EVT_PHY_UPDATE:
+        {
+//          ble_gap_evt_phy_update_t* active_phy = &evt->evt.gap_evt.params.phy_update;
+        }
+        break;
+            
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
         {
           uint16_t att_mtu = MIN(p_ble_evt->evt.gatts_evt.params.exchange_mtu_request.client_rx_mtu, BLEGATT_ATT_MTU_MAX);
