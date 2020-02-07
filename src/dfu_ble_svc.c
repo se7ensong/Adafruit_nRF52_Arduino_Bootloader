@@ -183,6 +183,8 @@ void SVC_Handler(void)
 
 uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t * p_peer_data)
 {
+	return NRF_ERROR_INVALID_DATA;
+
     uint16_t crc;
 
     if (p_peer_data == NULL)

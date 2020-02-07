@@ -50,8 +50,8 @@ enum { BLE_CONN_CFG_HIGH_BANDWIDTH = 1 };
 #define DFU_SERVICE_HANDLE                   0x000C                                                  /**< Handle of DFU service when DFU service is first service initialized. */
 #define BLE_HANDLE_MAX                       0xFFFF                                                  /**< Max handle value is BLE. */
 
-#define DEVICE_NAME                          "AdaDFU" // limit of 8 chars                                                /**< Name of device. Will be included in the advertising data. */
-#define DIS_MANUFACTURER                     "Adafruit Industries"
+#define DEVICE_NAME                          "NudgeDFU" // limit of 8 chars                                                /**< Name of device. Will be included in the advertising data. */
+#define DIS_MANUFACTURER                     "DnaNudge Ltd"
 // DIS_MODEL is defined in boards.h
 
 // TODO Update when upgrade bootloader
@@ -1125,7 +1125,7 @@ uint32_t dfu_transport_ble_update_start(void)
         APP_ERROR_CHECK(err_code);
 
         // Increase the BLE address by one when advertising openly.
-        addr.addr[0] += 1;
+//        addr.addr[0] += 1;
 
         err_code = sd_ble_gap_addr_set(&addr);
         APP_ERROR_CHECK(err_code);
